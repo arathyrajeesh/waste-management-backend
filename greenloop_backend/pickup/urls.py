@@ -7,5 +7,5 @@ pickup_list = PickupViewSet.as_view({
 })
 
 urlpatterns = [
-    path('pickups/',pickup_list),
+    path('pickups/', pickup_list),
 ]

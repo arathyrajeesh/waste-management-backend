@@ -4,6 +4,7 @@ from django.contrib.auth.password_validation import validate_password
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import serializers
 from .models import User
+from django.contrib.auth import authenticate
 
 class RegisterSerializer(serializers.ModelSerializer):
 
@@ -26,9 +27,6 @@ class RegisterSerializer(serializers.ModelSerializer):
 
         return user
     
-from django.contrib.auth import authenticate
-from rest_framework import serializers
-
 
 class LoginSerializer(serializers.Serializer):
 
@@ -48,8 +46,6 @@ class LoginSerializer(serializers.Serializer):
         return user
     
     
-from rest_framework import serializers
-from .models import User
 
 class UserSerializer(serializers.ModelSerializer):
 

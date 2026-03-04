@@ -2,8 +2,15 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import RegisterSerializer, LoginSerializer
-
+from .serializers import RegisterSerializer, LoginSerializer,UserSerializer
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import permission_classes
+from rest_framework.permissions import IsAuthenticated
+from .models import User
+from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
+from .models import Pickup
+from pickup.serializers import PickupSerializer
 
 def get_tokens(user):
 
@@ -52,12 +59,9 @@ def login(request):
     return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
 
-from rest_framework.permissions import IsAuthenticated
-from .models import User
-from .serializers import UserSerializer
-
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def all_users(request):
 
     # allow only admin
@@ -69,3 +73,22 @@ def all_users(request):
     serializer = UserSerializer(users, many=True)
 
     return Response(serializer.data)
+
+
+
+class PickupViewSet(viewsets.ModelViewSet):
+
+    serializer_class = PickupSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+
+        user = self.request.user
+
+        if user.role == "admin":
+            return Pickup.objects.all()
+
+        return Pickup.objects.filter(resident=user)
+
+    def perform_create(self, serializer):
+        serializer.save(resident=self.request.user)
