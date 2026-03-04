@@ -50,3 +50,22 @@ def login(request):
         })
 
     return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+
+from rest_framework.permissions import IsAuthenticated
+from .models import User
+from .serializers import UserSerializer
+
+
+@api_view(['GET'])
+def all_users(request):
+
+    # allow only admin
+    if request.user.role != "admin":
+        return Response({"error":"Access denied"}, status=403)
+
+    users = User.objects.all()
+
+    serializer = UserSerializer(users, many=True)
+
+    return Response(serializer.data)
