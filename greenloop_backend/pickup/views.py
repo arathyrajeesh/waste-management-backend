@@ -2,7 +2,8 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from .models import Pickup
 from .serializers import PickupSerializer
-
+from notifications.models import Notification
+from users.models import User
 
 class PickupViewSet(viewsets.ModelViewSet):
 
@@ -22,5 +23,16 @@ class PickupViewSet(viewsets.ModelViewSet):
 
 
     def perform_create(self, serializer):
-        serializer.save(resident=self.request.user)
+
+        pickup = serializer.save(resident=self.request.user)
+
+        admins = User.objects.filter(role="admin")
+
+        for admin in admins:
+            Notification.objects.create(
+                user=admin,
+                title="New Pickup Request",
+                message=f"{self.request.user.username} requested waste pickup."
+            )
+
 

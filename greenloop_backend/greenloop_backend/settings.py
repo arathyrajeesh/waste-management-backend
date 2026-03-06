@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'pickup',
     'rewards',
     'complaints',
+    'notifications',
 ]
 
 MIDDLEWARE = [
