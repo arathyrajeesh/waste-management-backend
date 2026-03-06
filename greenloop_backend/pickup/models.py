@@ -3,10 +3,23 @@ from users.models import User
 
 class Pickup(models.Model):
 
-    WASTE_TYPE = (
-        ('dry','Dry Waste'),
-        ('wet','Wet Waste'),
-        ('ewaste','E-Waste')
+    CATEGORY = (
+        ('ampoules','Ampoules'),
+        ('vials','Medicine Vials'),
+        ('blades','Blades'),
+        ('needles','Needles'),
+        ('scalpels','Scalpels'),
+        ('catheters','Catheters'),
+        ('gloves','Gloves'),
+        ('intravenous_tubes','Intravenous Tubes'),
+        ('tubing','Tubing'),
+        ('urine_bags','Urine Bags'),
+        ('kids_diaper','Kids Diaper'),
+        ('adult_diaper','Adult Diaper'),
+        ('sanitary_pad','Sanitary Pad'),
+        ('medical_waste','Medical Waste'),
+        ('discreet','Discreet Waste'),
+        ('hair','Hair'),
     )
 
     STATUS = (
@@ -14,9 +27,15 @@ class Pickup(models.Model):
         ('collected','Collected'),
     )
 
-    resident = models.ForeignKey(User,on_delete=models.CASCADE)
-    waste_type = models.CharField(max_length=20,choices=WASTE_TYPE)
+    resident = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    item = models.CharField(
+        max_length=50,
+        choices=CATEGORY
+    )
+
     address = models.TextField()
+
     date = models.DateField()
 
     status = models.CharField(
@@ -28,4 +47,4 @@ class Pickup(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.waste_type
+        return self.item

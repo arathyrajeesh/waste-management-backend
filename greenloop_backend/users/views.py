@@ -1,19 +1,17 @@
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
-from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import status, viewsets
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import RegisterSerializer, LoginSerializer,UserSerializer
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import permission_classes
-from rest_framework.permissions import IsAuthenticated
+
+from .serializers import RegisterSerializer, LoginSerializer, UserSerializer
 from .models import User
-from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
+
 from pickup.models import Pickup
 from pickup.serializers import PickupSerializer
+
 from django.core.mail import send_mail
 from django.contrib.auth.tokens import default_token_generator
-from django.urls import reverse
 from django.conf import settings
 
 def get_tokens(user):
@@ -78,24 +76,30 @@ def all_users(request):
 
     return Response(serializer.data)
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def admin_dashboard(request):
 
+    # only admin allowed
+    if request.user.role != "admin":
+        return Response({"error": "Access denied"}, status=403)
 
-class PickupViewSet(viewsets.ModelViewSet):
+    total_users = User.objects.count()
+    total_residents = User.objects.filter(role="resident").count()
+    total_admins = User.objects.filter(role="admin").count()
 
-    serializer_class = PickupSerializer
-    permission_classes = [IsAuthenticated]
+    total_pickups = Pickup.objects.count()
+    pending_pickups = Pickup.objects.filter(status="pending").count()
+    collected_pickups = Pickup.objects.filter(status="collected").count()
 
-    def get_queryset(self):
-
-        user = self.request.user
-
-        if user.role == "admin":
-            return Pickup.objects.all()
-
-        return Pickup.objects.filter(resident=user)
-
-    def perform_create(self, serializer):
-        serializer.save(resident=self.request.user)
+    return Response({
+        "total_users": total_users,
+        "total_residents": total_residents,
+        "total_admins": total_admins,
+        "total_pickups": total_pickups,
+        "pending_pickups": pending_pickups,
+        "collected_pickups": collected_pickups
+    })
         
         
 
@@ -105,13 +109,15 @@ def forgot_password(request):
     email = request.data.get("email")
 
     try:
-        user = User.objects.get(email=email)
+        user = User.objects.filter(email=email).first()
+        if not user:
+            return Response({"message":"If email exists, reset link sent"})
     except User.DoesNotExist:
         return Response({"error":"User not found"}, status=404)
 
     token = default_token_generator.make_token(user)
 
-    reset_link = f"http://127.0.0.1:8000/reset-password/{user.id}/{token}/"
+    reset_link = f"http://127.0.0.1:8000/api/auth/reset-password/{user.id}/{token}/"
 
     send_mail(
         "Password Reset",
@@ -136,6 +142,8 @@ def reset_password(request, uid, token):
         return Response({"error":"Invalid or expired token"}, status=400)
 
     new_password = request.data.get("password")
+    if not new_password:
+        return Response({"error": "Password is required"}, status=400)
     user.set_password(new_password)
     user.save()
 

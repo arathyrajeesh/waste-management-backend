@@ -23,3 +23,4 @@ class PickupViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(resident=self.request.user)
+

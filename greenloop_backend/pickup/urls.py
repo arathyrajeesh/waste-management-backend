@@ -2,8 +2,8 @@ from django.urls import path
 from .views import PickupViewSet
 
 pickup_list = PickupViewSet.as_view({
-    'get':'list',
-    'post':'create'
+    'get': 'list',
+    'post': 'create'
 })
 
 urlpatterns = [

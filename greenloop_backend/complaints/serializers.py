@@ -1,21 +1,18 @@
 from rest_framework import serializers
-from .models import Pickup
+from .models import Complaint
 
-class PickupSerializer(serializers.ModelSerializer):
+class ComplaintSerializer(serializers.ModelSerializer):
 
     resident_name = serializers.CharField(source='resident.username', read_only=True)
-    item_display = serializers.CharField(source='get_item_display', read_only=True)
 
     class Meta:
-        model = Pickup
+        model = Complaint
         fields = [
             'id',
             'resident',
             'resident_name',
-            'item',
-            'item_display',
-            'address',
-            'date',
+            'title',
+            'description',
             'status',
             'created_at'
         ]
