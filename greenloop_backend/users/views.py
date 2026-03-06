@@ -148,3 +148,37 @@ def reset_password(request, uid, token):
     user.save()
 
     return Response({"message":"Password reset successful"})
+
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def my_profile(request):
+
+    user = request.user
+
+    serializer = UserSerializer(user)
+
+    return Response(serializer.data)
+
+
+@api_view(['GET','PATCH'])
+@permission_classes([IsAuthenticated])
+def my_profile(request):
+
+    user = request.user
+
+    # GET → view profile
+    if request.method == "GET":
+        serializer = UserSerializer(user)
+        return Response(serializer.data)
+
+    # PATCH → update profile
+    if request.method == "PATCH":
+        serializer = UserSerializer(user, data=request.data, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+
+        return Response(serializer.errors, status=400)
