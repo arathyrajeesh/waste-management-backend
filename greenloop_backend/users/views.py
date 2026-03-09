@@ -76,6 +76,7 @@ def all_users(request):
 
     return Response(serializer.data)
 
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def admin_dashboard(request):
