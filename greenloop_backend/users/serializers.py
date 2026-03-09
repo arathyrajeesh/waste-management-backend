@@ -26,6 +26,26 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
     
 
+class HKSWorkerCreationSerializer(serializers.ModelSerializer):
+    
+    password = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = User
+        fields = ('username','email','password','phone','ward')
+
+    def create(self, validated_data):
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            email=validated_data['email'],
+            password=validated_data['password'],
+            phone=validated_data['phone'],
+            ward=validated_data.get('ward', ''),
+            role='hks_worker'
+        )
+        return user
+    
+
 class LoginSerializer(serializers.Serializer):
 
     username = serializers.CharField()
@@ -49,7 +69,13 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id','username','email','phone','ward','role']
+        fields = ['id','username','email','phone','ward','role', 'latitude', 'longitude']
+
+
+class HKSWorkerLocationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'phone', 'ward', 'latitude', 'longitude']
         
         
 class ForgotPasswordSerializer(serializers.Serializer):

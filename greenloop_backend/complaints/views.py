@@ -22,3 +22,19 @@ class ComplaintViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(resident=self.request.user)
+
+    def perform_update(self, serializer):
+        # Check if assigned_worker changed and is not null
+        old_complaint = self.get_object()
+        new_worker = serializer.validated_data.get('assigned_worker', old_complaint.assigned_worker)
+        
+        instance = serializer.save()
+
+        # If a worker is newly assigned or the assignment changes
+        if new_worker and (old_complaint.assigned_worker != new_worker):
+            from notifications.models import Notification
+            Notification.objects.create(
+                user=new_worker,
+                title="New Complaint Assigned",
+                message=f"You have been assigned to complaint: {instance.title}"
+            )

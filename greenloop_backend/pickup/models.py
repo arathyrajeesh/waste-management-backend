@@ -44,6 +44,19 @@ class Pickup(models.Model):
         default="pending"
     )
 
+    assigned_worker = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_pickups')
+    fee_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    fee_paid = models.BooleanField(default=False)
+    
+    WASTE_TYPES = [
+        ('dry', 'Dry'), 
+        ('wet', 'Wet'), 
+        ('e-waste', 'E-Waste'), 
+        ('biomedical', 'Biomedical')
+    ]
+    waste_type = models.CharField(max_length=20, choices=WASTE_TYPES, default='dry')
+    weight_kg = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
