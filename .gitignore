@@ -1,0 +1,22 @@
+# Virtual Environment
+waste/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+
+# Databases
+db.sqlite3
+
+# Environment
+.env
+
+# OS files
+.DS_Store
+Thumbs.db
