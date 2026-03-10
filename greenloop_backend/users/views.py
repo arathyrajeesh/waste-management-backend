@@ -63,9 +63,9 @@ def register(request):
         return Response({
             "message":"User created",
             "tokens":tokens
-        })
+        }, status=status.HTTP_201_CREATED)
 
-    return Response(serializer.errors)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])
@@ -110,7 +110,7 @@ def all_users(request):
     elif request.method == 'DELETE':
         user_id = request.data.get('user_id')
         if not user_id:
-             return Response({"error": "user_id is required"}, status=400)
+             return Response({"error": "user_id is required"}, status=
              
         try:
             user_to_delete = User.objects.get(id=user_id)
@@ -332,27 +332,15 @@ def reset_password(request, uid, token):
         return Response({"error":"Invalid user"}, status=404)
 
     if not default_token_generator.check_token(user, token):
-        return Response({"error":"Invalid or expired token"}, status=400)
+        return Response({"error":"Invalid or expired token"}, status=
 
     new_password = request.data.get("password")
     if not new_password:
-        return Response({"error": "Password is required"}, status=400)
+        return Response({"error": "Password is required"}, status=
     user.set_password(new_password)
     user.save()
 
     return Response({"message":"Password reset successful"})
-
-
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def my_profile(request):
-
-    user = request.user
-
-    serializer = UserSerializer(user)
-
-    return Response(serializer.data)
 
 
 @api_view(['GET','PATCH'])
@@ -374,4 +362,4 @@ def my_profile(request):
             serializer.save()
             return Response(serializer.data)
 
-        return Response(serializer.errors, status=400)
+        return Response(serializer.errors, status=
