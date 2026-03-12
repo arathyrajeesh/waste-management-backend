@@ -49,20 +49,19 @@ def create_hks_worker(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-
 @api_view(['POST'])
 def register(request):
 
     serializer = RegisterSerializer(data=request.data)
 
     if serializer.is_valid():
-
         user = serializer.save()
+
         tokens = get_tokens(user)
 
         return Response({
-            "message":"User created",
-            "tokens":tokens
+            "message": "User created successfully",
+            "tokens": tokens
         }, status=status.HTTP_201_CREATED)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -79,13 +78,13 @@ def login(request):
         tokens = get_tokens(user)
 
         return Response({
-            "username":user.username,
-            "role":user.role,
-            "tokens":tokens
+            "username": user.username,
+            "email": user.email,
+            "role": user.role,
+            "tokens": tokens
         })
 
-    return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
-
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET', 'DELETE'])

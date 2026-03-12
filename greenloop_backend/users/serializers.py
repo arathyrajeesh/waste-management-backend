@@ -57,21 +57,23 @@ class HKSWorkerCreationSerializer(serializers.ModelSerializer):
 
 class LoginSerializer(serializers.Serializer):
 
-    username = serializers.CharField()
+    email = serializers.EmailField()
     password = serializers.CharField()
 
-    def validate(self,data):
+    def validate(self, data):
 
-        user = authenticate(
-            username=data['username'],
-            password=data['password']
-        )
+        email = data.get("email")
+        password = data.get("password")
 
-        if not user:
-            raise serializers.ValidationError("Invalid credentials")
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            raise serializers.ValidationError("Invalid email or password")
+
+        if not user.check_password(password):
+            raise serializers.ValidationError("Invalid email or password")
 
         return user
-    
     
 
 class UserSerializer(serializers.ModelSerializer):
