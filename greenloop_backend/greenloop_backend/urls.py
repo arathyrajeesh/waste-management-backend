@@ -17,8 +17,14 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+from django.http import HttpResponse
+
+def home(request):
+    return HttpResponse("<h1>Greenloop Backend is running</h1><p>Check the API documentation at <a href='/api/docs/'>/api/docs/</a></p>")
+
 urlpatterns = [
 
+    path('', home, name='home'),
     path('admin/', admin.site.urls),
     path('api/auth/', include('users.urls')),
     path('api/', include('pickup.urls')),

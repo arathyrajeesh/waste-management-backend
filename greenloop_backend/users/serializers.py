@@ -10,7 +10,17 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username','email','password','phone','ward')
+        fields = ('username','email','password','phone','ward','role')
+
+    def validate_role(self, value):
+
+        # allow only resident and recycler registration
+        allowed_roles = ['resident', 'recycler']
+
+        if value not in allowed_roles:
+            raise serializers.ValidationError("You cannot register with this role")
+
+        return value
 
     def create(self, validated_data):
 
@@ -20,11 +30,10 @@ class RegisterSerializer(serializers.ModelSerializer):
             password=validated_data['password'],
             phone=validated_data['phone'],
             ward=validated_data['ward'],
-            role='resident'
+            role=validated_data.get('role','resident')
         )
 
         return user
-    
 
 class HKSWorkerCreationSerializer(serializers.ModelSerializer):
     
