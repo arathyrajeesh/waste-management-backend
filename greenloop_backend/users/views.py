@@ -3,8 +3,10 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status, viewsets
 from rest_framework_simplejwt.tokens import RefreshToken
+from drf_spectacular.utils import extend_schema, OpenApiResponse, inline_serializer
+from rest_framework import serializers as drf_serializers
 
-from .serializers import RegisterSerializer, LoginSerializer, UserSerializer, HKSWorkerCreationSerializer, HKSWorkerLocationSerializer
+from .serializers import RegisterSerializer, LoginSerializer, UserSerializer, HKSWorkerCreationSerializer, HKSWorkerLocationSerializer, ForgotPasswordSerializer, ResetPasswordSerializer
 from .models import User
 
 from pickup.models import Pickup
@@ -24,6 +26,12 @@ def get_tokens(user):
     }
 
 
+@extend_schema(
+    request=HKSWorkerCreationSerializer,
+    responses={201: OpenApiResponse(description='HKS Worker created successfully')},
+    summary='Create HKS Worker',
+    description='Admin only: Create a new HKS (Household Keeping Staff) worker account.',
+)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_hks_worker(request):
@@ -49,6 +57,12 @@ def create_hks_worker(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@extend_schema(
+    request=RegisterSerializer,
+    responses={201: OpenApiResponse(description='User created successfully with tokens')},
+    summary='Register',
+    description='Register a new resident or recycler account.',
+)
 @api_view(['POST'])
 def register(request):
 
@@ -67,6 +81,12 @@ def register(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@extend_schema(
+    request=LoginSerializer,
+    responses={200: OpenApiResponse(description='Returns user info and JWT tokens')},
+    summary='Login',
+    description='Login with email and password to get JWT access and refresh tokens.',
+)
 @api_view(['POST'])
 def login(request):
 
@@ -87,6 +107,11 @@ def login(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@extend_schema(
+    responses={200: UserSerializer(many=True)},
+    summary='All Users',
+    description='Admin only: List all users. Optionally filter by role using ?role=<role>. DELETE to remove a user by providing user_id in the request body.',
+)
 @api_view(['GET', 'DELETE'])
 @permission_classes([IsAuthenticated])
 def all_users(request):
@@ -121,6 +146,11 @@ def all_users(request):
             return Response({"error": "User not found"}, status=404)
 
 
+@extend_schema(
+    responses={200: OpenApiResponse(description='Admin dashboard summary stats (total users, pickups, etc.)')},
+    summary='Admin Dashboard',
+    description='Admin only: Get high-level summary stats for the admin dashboard.',
+)
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def admin_dashboard(request):
@@ -147,6 +177,11 @@ def admin_dashboard(request):
     })
         
         
+@extend_schema(
+    responses={200: OpenApiResponse(description='Returns worker locations and pending pickups for the live map.')},
+    summary='Admin Live Map',
+    description='Admin only: Get current HKS worker locations and pending pickups for the live map view.',
+)
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def admin_dashboard_live_map(request):
@@ -167,6 +202,11 @@ def admin_dashboard_live_map(request):
     })
 
 
+@extend_schema(
+    responses={200: OpenApiResponse(description='Returns pickup and complaint stats grouped by ward.')},
+    summary='Admin Ward Monitoring',
+    description='Admin only: Get pickup completion and complaint stats for each ward.',
+)
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def admin_dashboard_ward_monitoring(request):
@@ -201,6 +241,11 @@ def admin_dashboard_ward_monitoring(request):
 
     return Response(ward_data)
 
+@extend_schema(
+    responses={200: OpenApiResponse(description='Returns all complaints with stats.')},
+    summary='Admin Complaints',
+    description='Admin only: Get all complaints with total, pending, and resolved counts.',
+)
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def admin_dashboard_complaints(request):
@@ -231,6 +276,11 @@ def admin_dashboard_complaints(request):
     })
 
 
+@extend_schema(
+    responses={200: OpenApiResponse(description='Returns fee collection stats and per-pickup details.')},
+    summary='Admin Fee Collection',
+    description='Admin only: Get fee collection stats (total expected, collected, pending).',
+)
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def admin_dashboard_fees(request):
@@ -268,6 +318,11 @@ def admin_dashboard_fees(request):
         "details": fee_details
     })
 
+@extend_schema(
+    responses={200: OpenApiResponse(description='Returns waste stats broken down by type (dry, wet, e-waste, biomedical).')},
+    summary='Admin Waste Reports',
+    description='Admin only: Get collected waste stats broken down by waste type.',
+)
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def admin_dashboard_waste_reports(request):
@@ -295,6 +350,12 @@ def admin_dashboard_waste_reports(request):
         }
     })
 
+@extend_schema(
+    request=ForgotPasswordSerializer,
+    responses={200: OpenApiResponse(description='Password reset link sent to email')},
+    summary='Forgot Password',
+    description='Send a password reset link to the provided email address.',
+)
 @api_view(['POST'])
 def forgot_password(request):
 
@@ -322,6 +383,12 @@ def forgot_password(request):
     return Response({"message":"Password reset link sent to email"})
 
 
+@extend_schema(
+    request=ResetPasswordSerializer,
+    responses={200: OpenApiResponse(description='Password reset successful')},
+    summary='Reset Password',
+    description='Reset the password using the uid and token from the reset email link.',
+)
 @api_view(['POST'])
 def reset_password(request, uid, token):
 
@@ -342,6 +409,12 @@ def reset_password(request, uid, token):
     return Response({"message":"Password reset successful"})
 
 
+@extend_schema(
+    request=UserSerializer,
+    responses={200: UserSerializer},
+    summary='My Profile',
+    description='GET your own profile. PATCH to update fields like phone, ward, etc.',
+)
 @api_view(['GET','PATCH'])
 @permission_classes([IsAuthenticated])
 def my_profile(request):
