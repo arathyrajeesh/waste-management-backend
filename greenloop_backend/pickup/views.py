@@ -33,10 +33,14 @@ class PickupViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
 
         user = self.request.user
-
+        
         # Admin sees all pickups
         if user.role == "admin":
             return Pickup.objects.all()
+            
+        # Worker sees only tasks assigned to them
+        if user.role == "hks_worker":
+            return Pickup.objects.filter(assigned_worker=user)
 
         # Resident sees only their pickups
         return Pickup.objects.filter(resident=user)
@@ -54,5 +58,31 @@ class PickupViewSet(viewsets.ModelViewSet):
                 title="New Pickup Request",
                 message=f"{self.request.user.username} requested waste pickup."
             )
+
+    def perform_update(self, serializer):
+        # Get the original object to see if the worker changed
+        old_instance = self.get_object()
+        old_worker = old_instance.assigned_worker
+        
+        pickup = serializer.save()
+        
+        # If a worker was assigned/changed, notify them
+        new_worker = pickup.assigned_worker
+        if new_worker and new_worker != old_worker:
+            Notification.objects.create(
+                user=new_worker,
+                title="New Task Assigned",
+                message=f"You have been assigned to a pickup for {pickup.resident.username} at {pickup.address}."
+            )
+
+    @action(detail=False, methods=['get'], url_path='available-workers')
+    def available_workers(self, request):
+        if request.user.role != "admin":
+            return Response({"error": "Access denied"}, status=403)
+            
+        workers = User.objects.filter(role='hks_worker')
+        from users.serializers import UserSerializer
+        serializer = UserSerializer(workers, many=True)
+        return Response(serializer.data)
 
 
