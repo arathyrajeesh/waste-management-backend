@@ -183,3 +183,7 @@ SIMPLE_JWT = {
 'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
 
 }
+AUTHENTICATION_BACKENDS = [
+    'greenloop_backend.backends.EmailBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
