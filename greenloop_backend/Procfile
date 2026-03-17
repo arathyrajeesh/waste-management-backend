@@ -1,1 +1,1 @@
-web: gunicorn greenloop_backend.wsgi
+web: gunicorn greenloop_backend.wsgi --bind 0.0.0.0:$PORT
