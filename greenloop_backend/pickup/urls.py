@@ -1,11 +1,11 @@
-from django.urls import path
-from .views import PickupViewSet
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import PickupViewSet, PickupSlotViewSet
 
-pickup_list = PickupViewSet.as_view({
-    'get': 'list',
-    'post': 'create'
-})
+router = DefaultRouter()
+router.register(r'pickups', PickupViewSet, basename='pickup')
+router.register(r'pickup-slots', PickupSlotViewSet, basename='pickup-slot')
 
 urlpatterns = [
-    path('pickups/', pickup_list),
+    path('', include(router.urls)),
 ]

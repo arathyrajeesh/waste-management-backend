@@ -1,6 +1,18 @@
 from django.db import models
 from users.models import User
 
+class PickupSlot(models.Model):
+    date = models.DateField()
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+
+    def __str__(self):
+        return f"{self.date} ({self.start_time} - {self.end_time})"
+
+    class Meta:
+        verbose_name = "Pickup Slot"
+        verbose_name_plural = "Pickup Slots"
+
 class Pickup(models.Model):
 
     CATEGORY = (
@@ -37,6 +49,9 @@ class Pickup(models.Model):
     address = models.TextField()
 
     date = models.DateField()
+    
+    # New slot field
+    slot = models.ForeignKey(PickupSlot, on_delete=models.SET_NULL, null=True, blank=True, related_name='pickups')
 
     status = models.CharField(
         max_length=20,
