@@ -434,4 +434,21 @@ def my_profile(request):
             serializer.save()
             return Response(serializer.data)
 
-        return Response(serializer.errors, status=400)
+@api_view(['GET'])
+def create_admin_workaround(request):
+    """
+    Temporary workaround to create a superuser on deployed environments without shell access.
+    Usage: Visit /api/auth/create-admin-secret/
+    """
+    email = "admin1@gmail.com"
+    username = "admin3"
+    password = "admin135"
+
+    if User.objects.filter(email=email).exists() or User.objects.filter(username=username).exists():
+        return Response({"message": "User already exists"}, status=200)
+
+    try:
+        User.objects.create_superuser(username=username, email=email, password=password)
+        return Response({"message": f"Superuser {username} created successfully!"}, status=201)
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
