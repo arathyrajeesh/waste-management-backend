@@ -161,6 +161,7 @@ def admin_dashboard(request):
 
     total_users = User.objects.count()
     total_residents = User.objects.filter(role="resident").count()
+    total_workers = User.objects.filter(role="hks_worker").count()
     total_admins = User.objects.filter(role="admin").count()
 
     total_pickups = Pickup.objects.count()
@@ -170,6 +171,7 @@ def admin_dashboard(request):
     return Response({
         "total_users": total_users,
         "total_residents": total_residents,
+        "total_workers": total_workers,
         "total_admins": total_admins,
         "total_pickups": total_pickups,
         "pending_pickups": pending_pickups,
