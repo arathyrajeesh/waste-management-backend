@@ -444,11 +444,17 @@ def create_admin_workaround(request):
     username = "admin3"
     password = "admin135"
 
-    if User.objects.filter(email=email).exists() or User.objects.filter(username=username).exists():
-        return Response({"message": "User already exists"}, status=200)
+    user = User.objects.filter(email=email).first() or User.objects.filter(username=username).first()
+    
+    if user:
+        user.role = 'admin'
+        user.is_superuser = True
+        user.is_staff = True
+        user.save()
+        return Response({"message": f"User {username} updated to Admin role successfully!"}, status=200)
 
     try:
-        User.objects.create_superuser(username=username, email=email, password=password)
-        return Response({"message": f"Superuser {username} created successfully!"}, status=201)
+        User.objects.create_superuser(username=username, email=email, password=password, role='admin')
+        return Response({"message": f"Superuser {username} created with Admin role successfully!"}, status=201)
     except Exception as e:
         return Response({"error": str(e)}, status=500)
