@@ -1,1 +1,1 @@
-web: gunicorn greenloop_backend.wsgi:application --chdir greenloop_backend --bind 0.0.0.0:$PORT
+web: gunicorn greenloop_backend.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --preload

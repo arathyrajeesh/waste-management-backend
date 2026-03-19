@@ -66,7 +66,7 @@ def create_hks_worker(request):
 @api_view(['POST'])
 def register(request):
 
-    serializer = RegisterSerializer(data=request.data)
+    serializer = RegisterSerializer(data=request.data, context={'request': request})
 
     if serializer.is_valid():
         user = serializer.save()

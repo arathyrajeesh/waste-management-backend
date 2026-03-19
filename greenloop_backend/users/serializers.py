@@ -13,6 +13,10 @@ class RegisterSerializer(serializers.ModelSerializer):
         fields = ('username','email','password','phone','ward','role')
 
     def validate_role(self, value):
+        # Allow admins to set any role
+        request = self.context.get('request')
+        if request and request.user and request.user.is_authenticated and request.user.role == 'admin':
+            return value
 
         # allow only resident and recycler registration
         allowed_roles = ['resident', 'recycler']
