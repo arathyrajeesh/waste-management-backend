@@ -1,0 +1,103 @@
+services:
+  db:
+    image: postgis/postgis:15-3.3
+    environment:
+      - POSTGRES_DB=greenloop
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  django:
+    build: .
+    command: bash /app/entrypoint.sh python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    environment:
+      - DEBUG=True
+      - DB_NAME=greenloop
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_HOST=db
+      - DB_PORT=5432
+      - REDIS_HOST=redis
+    ports:
+      - "8010:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  daphne:
+    build: .
+    command: bash /app/entrypoint.sh daphne -b 0.0.0.0 -p 8001 greenloop_backend.asgi:application
+    volumes:
+      - .:/app
+    environment:
+      - DEBUG=True
+      - DB_NAME=greenloop
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_HOST=db
+      - DB_PORT=5432
+      - REDIS_HOST=redis
+    ports:
+      - "8001:8001"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  celery_worker:
+    build: .
+    command: bash /app/entrypoint.sh celery -A greenloop_backend worker --loglevel=info
+    volumes:
+      - .:/app
+    environment:
+      - DB_NAME=greenloop
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_HOST=db
+      - DB_PORT=5432
+      - REDIS_HOST=redis
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  celery_beat:
+    build: .
+    command: bash /app/entrypoint.sh celery -A greenloop_backend beat --loglevel=info
+    volumes:
+      - .:/app
+    environment:
+      - DB_NAME=greenloop
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_HOST=db
+      - DB_PORT=5432
+      - REDIS_HOST=redis
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
