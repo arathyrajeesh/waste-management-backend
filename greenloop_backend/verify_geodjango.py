@@ -18,13 +18,14 @@ def verify_spatial():
         print(f"PostGIS Version: {version[0]}")
 
     print("\nCreating test spatial record...")
-    p1 = Point(12.9716, 77.5946) # Bangalore
+    p1 = Point(77.5946, 12.9716) # Bangalore (lng, lat)
     test_obj = SpatialTest.objects.create(name="Test Point", location=p1)
     print(f"Created: {test_obj.name} at {test_obj.location}")
 
     print("\nRunning spatial query (ST_Within)...")
     # Buffer around Bangalore
     from django.contrib.gis.measure import D
+    # Note: Point(lng, lat)
     results = SpatialTest.objects.filter(location__distance_lte=(p1, D(m=100)))
     if results.exists():
         print(f"Success! Found {results.count()} point(s) within 100m.")

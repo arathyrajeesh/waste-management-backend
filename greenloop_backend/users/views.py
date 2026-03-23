@@ -6,7 +6,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from drf_spectacular.utils import extend_schema, OpenApiResponse, inline_serializer
 from rest_framework import serializers as drf_serializers
 
-from .serializers import RegisterSerializer, LoginSerializer, UserSerializer, HKSWorkerCreationSerializer, HKSWorkerLocationSerializer, ForgotPasswordSerializer, ResetPasswordSerializer, UserUpdateSerializer
+from .serializers import RegisterSerializer, LoginSerializer, UserSerializer, HKSWorkerCreationSerializer, HKSWorkerLocationSerializer, UpdateLocationSerializer, ForgotPasswordSerializer, ResetPasswordSerializer, UserUpdateSerializer
 from .models import User
 
 from pickup.models import Pickup
@@ -177,8 +177,33 @@ def admin_dashboard(request):
         "pending_pickups": pending_pickups,
         "collected_pickups": collected_pickups
     })
+
+@extend_schema(
+    request=UpdateLocationSerializer,
+    responses={200: OpenApiResponse(description='Location updated successfully.')},
+    summary='Update HKS Worker Location',
+    description='HKS Worker only: Update current GPS coordinates.'
+)
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def update_location(request):
+    if request.user.role != "hks_worker":
+        return Response({"error": "Only HKS workers can update location"}, status=403)
+    
+    serializer = UpdateLocationSerializer(data=request.data)
+    if serializer.is_valid():
+        from django.utils import timezone
+        from django.contrib.gis.geos import Point
         
-        
+        request.user.location = Point(
+            float(serializer.validated_data['longitude']),
+            float(serializer.validated_data['latitude'])
+        )
+        request.user.last_location_update = timezone.now()
+        request.user.save()
+        return Response({"message": "Location updated successfully"})
+    return Response(serializer.errors, status=400)
+
 @extend_schema(
     responses={200: OpenApiResponse(description='Returns worker locations and pending pickups for the live map.')},
     summary='Admin Live Map',
@@ -190,8 +215,12 @@ def admin_dashboard_live_map(request):
     if request.user.role != "admin":
         return Response({"error": "Access denied"}, status=403)
 
-    # Get active workers (could filter by online status if we had one)
-    workers = User.objects.filter(role='hks_worker')
+    # Get active workers (only those who have updated location recently, e.g., in last 24h)
+    from django.utils import timezone
+    from datetime import timedelta
+    active_threshold = timezone.now() - timedelta(hours=24)
+    
+    workers = User.objects.filter(role='hks_worker', last_location_update__gte=active_threshold)
     worker_data = HKSWorkerLocationSerializer(workers, many=True).data
 
     # Get pending pickups (for display on the map)
@@ -202,6 +231,8 @@ def admin_dashboard_live_map(request):
         "workers": worker_data,
         "pending_pickups": pickup_data
     })
+        
+        
 
 
 @extend_schema(

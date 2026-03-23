@@ -1,13 +1,6 @@
 from django.contrib.gis.db import models
 from users.models import User
 
-class SpatialTest(models.Model):
-    name = models.CharField(max_length=100)
-    location = models.PointField()
-
-    def __str__(self):
-        return self.name
-
 class PickupSlot(models.Model):
     date = models.DateField()
     start_time = models.TimeField()
@@ -19,6 +12,13 @@ class PickupSlot(models.Model):
     class Meta:
         verbose_name = "Pickup Slot"
         verbose_name_plural = "Pickup Slots"
+
+class SpatialTest(models.Model):
+    name = models.CharField(max_length=100)
+    location = models.PointField()
+
+    def __str__(self):
+        return self.name
 
 class Pickup(models.Model):
 

@@ -1,5 +1,5 @@
 from django.contrib.auth.models import AbstractUser
-from django.db import models
+from django.contrib.gis.db import models
 
 class User(AbstractUser):
 
@@ -8,7 +8,6 @@ class User(AbstractUser):
         ('resident','Resident'),
         ('hks_worker','HKS Worker'),
         ('recycler', 'Recycler'),
-        ('driver', 'Driver'),
     )
 
     email = models.EmailField(unique=True)   
@@ -19,10 +18,10 @@ class User(AbstractUser):
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='resident')
     phone = models.CharField(max_length=15)
     ward = models.CharField(max_length=50)
-
-    latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
-    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
-    address = models.TextField(null=True, blank=True)
+    
+    # Location fields for HKS workers (GeoDjango Spatial)
+    location = models.PointField(null=True, blank=True)
+    last_location_update = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return self.username

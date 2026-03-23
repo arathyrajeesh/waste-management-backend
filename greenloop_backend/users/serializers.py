@@ -10,7 +10,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username','email','password','phone','ward','role', 'address')
+        fields = ('username','email','password','phone','ward','role')
 
     def validate_role(self, value):
         # Allow admins to set any role
@@ -35,7 +35,6 @@ class RegisterSerializer(serializers.ModelSerializer):
             phone=validated_data['phone'],
             ward=validated_data['ward'],
             role=validated_data.get('role','resident'),
-            address=validated_data.get('address', '')
         )
 
         return user
@@ -85,22 +84,34 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id','username','email','phone','ward','role', 'latitude', 'longitude', 'address']
+        fields = ['id','username','email','phone','ward','role', 'location', 'last_location_update']
         read_only_fields = ['id', 'role']
 
 
 class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['username', 'email', 'phone', 'ward', 'latitude', 'longitude', 'address']
+        fields = ['username', 'email', 'phone', 'ward', 'location']
 
 
 class HKSWorkerLocationSerializer(serializers.ModelSerializer):
+    latitude = serializers.SerializerMethodField()
+    longitude = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ['id', 'username', 'phone', 'ward', 'latitude', 'longitude']
-        
-        
+        fields = ['id', 'username', 'phone', 'ward', 'latitude', 'longitude', 'last_location_update']
+
+    def get_latitude(self, obj):
+        return obj.location.y if obj.location else None
+
+    def get_longitude(self, obj):
+        return obj.location.x if obj.location else None
+
+class UpdateLocationSerializer(serializers.Serializer):
+    latitude = serializers.DecimalField(max_digits=9, decimal_places=6)
+    longitude = serializers.DecimalField(max_digits=9, decimal_places=6)
+
 class ForgotPasswordSerializer(serializers.Serializer):
     email = serializers.EmailField()
 

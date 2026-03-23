@@ -76,7 +76,6 @@ INSTALLED_APPS = [
     'complaints',
     'notifications',
     'drf_spectacular',
-    'drivers',
 ]
 
 MIDDLEWARE = [
