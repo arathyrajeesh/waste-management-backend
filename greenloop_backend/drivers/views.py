@@ -5,9 +5,7 @@ from .serializers import DriverLocationSerializer, DriverCreateSerializer, Drive
 
 User = get_user_model()
 
-class IsAdminUser(permissions.BasePermission):
-    def has_permission(self, request, view):
-        return request.user and request.user.is_authenticated and request.user.role == 'admin'
+from users.permissions import IsAdminUser
 
 class IsDriverUser(permissions.BasePermission):
     def has_permission(self, request, view):

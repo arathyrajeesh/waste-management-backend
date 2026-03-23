@@ -6,11 +6,16 @@ from .models import Pickup, PickupSlot
 from .serializers import PickupSerializer, SlotSerializer
 from notifications.models import Notification
 from users.models import User
+from users.permissions import IsAdminUser
 
-class PickupSlotViewSet(viewsets.ReadOnlyModelViewSet):
+class PickupSlotViewSet(viewsets.ModelViewSet):
     queryset = PickupSlot.objects.all()
     serializer_class = SlotSerializer
-    permission_classes = [IsAuthenticated]
+    
+    def get_permissions(self):
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            return [IsAdminUser()]
+        return [IsAuthenticated()]
 
     def get_queryset(self):
         queryset = PickupSlot.objects.all().order_by('date', 'start_time')
