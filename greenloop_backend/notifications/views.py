@@ -13,7 +13,7 @@ from notifications.serializers import NotificationSerializer
 from users.models import User
 
 class ComplaintViewSet(viewsets.ModelViewSet):
-
+    queryset = Complaint.objects.none()
     serializer_class = ComplaintSerializer
     permission_classes = [IsAuthenticated]
 
@@ -41,7 +41,7 @@ class ComplaintViewSet(viewsets.ModelViewSet):
             )
 
 class PickupViewSet(viewsets.ModelViewSet):
-
+    queryset = Pickup.objects.none()
     serializer_class = PickupSerializer
     permission_classes = [IsAuthenticated]
 
@@ -69,7 +69,7 @@ class PickupViewSet(viewsets.ModelViewSet):
             )
 
 class NotificationViewSet(viewsets.ModelViewSet):
-
+    queryset = Notification.objects.none()
     serializer_class = NotificationSerializer
     permission_classes = [IsAuthenticated]
 

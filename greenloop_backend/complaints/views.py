@@ -5,7 +5,7 @@ from .serializers import ComplaintSerializer
 
 
 class ComplaintViewSet(viewsets.ModelViewSet):
-
+    queryset = Complaint.objects.none()
     serializer_class = ComplaintSerializer
     permission_classes = [IsAuthenticated]
 

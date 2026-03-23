@@ -26,7 +26,7 @@ class PickupSlotViewSet(viewsets.ReadOnlyModelViewSet):
         return Response(dates)
 
 class PickupViewSet(viewsets.ModelViewSet):
-
+    queryset = Pickup.objects.none()
     serializer_class = PickupSerializer
     permission_classes = [IsAuthenticated]
 

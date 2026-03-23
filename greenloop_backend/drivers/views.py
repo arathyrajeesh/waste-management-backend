@@ -27,8 +27,6 @@ class UpdateDriverLocationView(generics.UpdateAPIView):
         return self.request.user
 
 class DriverListView(generics.ListAPIView):
+    queryset = User.objects.filter(role='driver')
     serializer_class = DriverListSerializer
     permission_classes = [permissions.IsAuthenticated]
-
-    def get_queryset(self):
-        return User.objects.filter(role='driver')
