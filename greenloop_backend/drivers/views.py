@@ -31,7 +31,4 @@ class DriverListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        user = self.request.user
-        if user.role == 'resident':
-            return User.objects.filter(role='driver', ward=user.ward)
         return User.objects.filter(role='driver')
