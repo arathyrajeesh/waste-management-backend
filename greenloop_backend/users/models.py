@@ -8,6 +8,7 @@ class User(AbstractUser):
         ('resident','Resident'),
         ('hks_worker','HKS Worker'),
         ('recycler', 'Recycler'),
+        ('driver', 'Driver'),
     )
 
     email = models.EmailField(unique=True)   
