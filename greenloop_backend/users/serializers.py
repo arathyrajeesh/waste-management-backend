@@ -10,7 +10,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username','email','password','phone','ward','role')
+        fields = ('username','email','password','phone','ward','role', 'address')
 
     def validate_role(self, value):
         # Allow admins to set any role
@@ -34,7 +34,8 @@ class RegisterSerializer(serializers.ModelSerializer):
             password=validated_data['password'],
             phone=validated_data['phone'],
             ward=validated_data['ward'],
-            role=validated_data.get('role','resident')
+            role=validated_data.get('role','resident'),
+            address=validated_data.get('address', '')
         )
 
         return user
@@ -84,7 +85,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id','username','email','phone','ward','role', 'latitude', 'longitude']
+        fields = ['id','username','email','phone','ward','role', 'latitude', 'longitude', 'address']
 
 
 class HKSWorkerLocationSerializer(serializers.ModelSerializer):
