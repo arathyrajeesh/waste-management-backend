@@ -89,6 +89,12 @@ class UserSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'role']
 
 
+class UserUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'phone', 'ward', 'latitude', 'longitude', 'address']
+
+
 class HKSWorkerLocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = User

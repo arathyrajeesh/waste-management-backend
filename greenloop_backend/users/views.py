@@ -6,7 +6,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from drf_spectacular.utils import extend_schema, OpenApiResponse, inline_serializer
 from rest_framework import serializers as drf_serializers
 
-from .serializers import RegisterSerializer, LoginSerializer, UserSerializer, HKSWorkerCreationSerializer, HKSWorkerLocationSerializer, ForgotPasswordSerializer, ResetPasswordSerializer
+from .serializers import RegisterSerializer, LoginSerializer, UserSerializer, HKSWorkerCreationSerializer, HKSWorkerLocationSerializer, ForgotPasswordSerializer, ResetPasswordSerializer, UserUpdateSerializer
 from .models import User
 
 from pickup.models import Pickup
@@ -412,10 +412,10 @@ def reset_password(request, uid, token):
 
 
 @extend_schema(
-    request=UserSerializer,
+    request=UserUpdateSerializer,
     responses={200: UserSerializer},
     summary='My Profile',
-    description='GET your own profile. PATCH to update fields like phone, ward, etc.',
+    description='GET your own profile. PATCH to update fields (Residents only).',
 )
 @api_view(['GET','PATCH'])
 @permission_classes([IsAuthenticated])
@@ -430,10 +430,13 @@ def my_profile(request):
 
     # PATCH → update profile
     if request.method == "PATCH":
-        serializer = UserSerializer(user, data=request.data, partial=True)
+        if user.role != 'resident':
+            return Response({"error": "Only residents can update their profile details here."}, status=403)
+            
+        serializer = UserUpdateSerializer(user, data=request.data, partial=True)
 
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data)
+            return Response(UserSerializer(user).data)
 
         return Response(serializer.errors, status=400)
