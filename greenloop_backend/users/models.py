@@ -25,3 +25,10 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
+
+class Ward(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    boundary = models.PolygonField(spatial_index=True)
+
+    def __str__(self):
+        return self.name

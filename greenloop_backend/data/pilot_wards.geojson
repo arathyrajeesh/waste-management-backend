@@ -1,0 +1,37 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {"name": "Pilot Ward 1"},
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[77.59, 12.97], [77.60, 12.97], [77.60, 12.98], [77.59, 12.98], [77.59, 12.97]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {"name": "Pilot Ward 2"},
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[77.60, 12.97], [77.61, 12.97], [77.61, 12.98], [77.60, 12.98], [77.60, 12.97]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {"name": "Pilot Ward 3"},
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[77.59, 12.96], [77.60, 12.96], [77.60, 12.97], [77.59, 12.97], [77.59, 12.96]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {"name": "Pilot Ward 4"},
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[77.60, 12.96], [77.61, 12.96], [77.61, 12.97], [77.60, 12.97], [77.60, 12.96]]]
+      }
+    }
+  ]
+}

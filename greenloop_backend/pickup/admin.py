@@ -9,8 +9,8 @@ class PickupSlotAdmin(admin.ModelAdmin):
 
 @admin.register(Pickup)
 class PickupAdmin(admin.ModelAdmin):
-    list_display = ('item', 'resident', 'date', 'slot', 'status', 'assigned_worker', 'fee_paid')
-    list_filter = ('status', 'waste_type', 'date', 'slot', 'assigned_worker')
+    list_display = ('item', 'resident', 'scheduled_date', 'slot', 'status', 'assigned_worker', 'fee_paid')
+    list_filter = ('status', 'waste_type', 'scheduled_date', 'slot', 'assigned_worker')
     search_fields = ('item', 'resident__username', 'address')
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
